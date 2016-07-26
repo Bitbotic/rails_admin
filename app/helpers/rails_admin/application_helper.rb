@@ -85,10 +85,18 @@ module RailsAdmin
     end
 
     def static_navigation
-      li_stack = RailsAdmin::Config.navigation_static_links.collect do |title, url|
-        content_tag(:li, link_to(title.to_s, url, target: '_blank'))
-      end.join
+      li_stack = nil
 
+      if RailsAdmin::Config.navigation_static_links.is_a? Array
+        li_stack = RailsAdmin::Config.navigation_static_links.collect do |link|
+          content_tag(:li, link_to(link[:title].to_s, link[:url], target: link[:target]))
+        end.join
+      elsif RailsAdmin::Config.navigation_static_links.is_a? Hash
+        li_stack = RailsAdmin::Config.navigation_static_links.collect do |title, url|
+          content_tag(:li, link_to(title.to_s, url, target: '_blank'))
+        end.join
+      end
+      
       label = RailsAdmin::Config.navigation_static_label || t('admin.misc.navigation_static_label')
       li_stack = %(<li class='dropdown-header'>#{label}</li>#{li_stack}).html_safe if li_stack.present?
       li_stack
